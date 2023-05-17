@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Searchbar } from './Searchbar/Searchbar';
-// import ContactList from './ContactList/ContactList';
+import { ImageGallery } from './ImageGallery/ImageGallery';
 // import { Layout } from './Style/Layout';
 
 export class App extends Component {
@@ -11,12 +11,7 @@ export class App extends Component {
   handleFormSubmit = imgName => {
     this.setState({ imgName });
   };
-  // componentDidUpdate(prevProps, prevState) {
-  //   console.log('add');
-  //   if (this.state.contacts !== prevState.contacts) {
-  //     localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-  //   }
-  // }
+
   // componentDidMount() {
   //   const contactsMount = JSON.parse(localStorage.getItem('contacts'));
   //   if (contactsMount) {
@@ -25,6 +20,11 @@ export class App extends Component {
   // }
 
   render() {
-    return <Searchbar onSubmit={this.handleFormSubmit} />;
+    return (
+      <>
+        <Searchbar onSubmit={this.handleFormSubmit} />
+        <ImageGallery imgName={this.state.imgName} />
+      </>
+    );
   }
 }

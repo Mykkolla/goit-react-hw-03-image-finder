@@ -14,8 +14,11 @@ export class Searchbar extends Component {
   handleSubmit = event => {
     event.preventDefault();
 
+    if (this.state.imgName.trim() === '') {
+      alert('No name input');
+      return;
+    }
     this.props.onSubmit(this.state.imgName.trim());
-
     this.setState({ imgName: '' });
   };
 
