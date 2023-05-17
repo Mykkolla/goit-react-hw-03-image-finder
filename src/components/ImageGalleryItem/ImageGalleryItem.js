@@ -1,10 +1,17 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
+import '../../styles.css';
 
-const ImageGalleryItem = ({ image }) => (
-  <li className="gallery-item">
-    <img src={image.webformatURL} alt="search result" />
-  </li>
-);
+const ImageGalleryItem = ({ webformatURL, key, onClick }) => {
+  return (
+    <li className="ImageGalleryItem" key={key}>
+      <img
+        src={webformatURL}
+        alt=""
+        className="ImageGalleryItem-image"
+        onClick={onClick}
+      />
+    </li>
+  );
+};
 
 export default ImageGalleryItem;

@@ -1,39 +1,102 @@
 import React, { Component } from 'react';
-import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
 import axios from 'axios';
-// import PropTypes from 'prop-types';
+import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
+import Loader from '../Loader/Loader';
+import Button from '../Button/Button';
+import Modal from '../Modal/Modal';
+import '../../styles.css';
 
-export class ImageGallery extends Component {
+const API_KEY = '35143561-a246dd3ff16ac48132d2e40aa';
+
+class ImageGallery extends Component {
   state = {
     images: [],
+    isLoading: false,
+    selectedImage: null,
+    currentPage: 1,
+    showModal: false,
+    showNoImagesMessage: false,
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevProps.imgName !== this.props.imgName) {
-      console.log('change');
-      this.fetchImages();
+  // componentDidUpdate(prevProps) {
+  //   if (this.props.imgName !== prevProps.imgName) {
+  //     this.setState({ images: [], currentPage: 1 }, () => {
+  //       this.fetchImages(this.props.imgName, 1);
+  //     });
+  //   }
+  // }
+  componentDidUpdate(prevProps) {
+    if (this.props.imgName !== prevProps.imgName) {
+      this.setState(
+        { images: [], currentPage: 1, showNoImagesMessage: false },
+        () => {
+          this.fetchImages(this.props.imgName, 1);
+        }
+      );
     }
   }
-  fetchImages = async () => {
-    try {
-      const response = await axios.get(
-        `https://pixabay.com/api/?q=${this.props.imgName}&page=1&key=35143561-a246dd3ff16ac48132d2e40aa&image_type=photo&orientation=horizontal&per_page=12`
-      );
-      this.setState({ images: response.data.hits });
-    } catch (error) {
-      console.error(error);
-    }
+
+  fetchImages = (query, page) => {
+    this.setState({ isLoading: true });
+
+    axios
+      .get(
+        `https://pixabay.com/api/?q=${query}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
+      )
+      .then(response => {
+        this.setState(prevState => ({
+          images: [...prevState.images, ...response.data.hits],
+          currentPage: page,
+          showNoImagesMessage: response.data.hits.length === 0,
+        }));
+      })
+      .catch(error => console.log(error))
+      .finally(() => {
+        this.setState({ isLoading: false });
+      });
+  };
+
+  handleLoadMore = () => {
+    const { imgName, currentPage } = this.props;
+    const nextPage = currentPage + 1;
+    this.fetchImages(imgName, nextPage);
+  };
+
+  openModal = selectedImage => {
+    this.setState({ showModal: true, selectedImage });
+  };
+
+  closeModal = () => {
+    this.setState({ showModal: false, largeImageURL: '' });
   };
 
   render() {
-    const { images } = this.state;
+    const { images, isLoading, showModal, selectedImage, showNoImagesMessage } =
+      this.state;
+
     return (
-      <ul>
-        <p>{this.props.imgName}</p>
-        {images.map(image => (
-          <ImageGalleryItem key={image.id} image={image} />
-        ))}
-      </ul>
+      <>
+        <ul className="ImageGallery">
+          {images.map(({ id, webformatURL, largeImageURL }) => (
+            <ImageGalleryItem
+              key={id}
+              webformatURL={webformatURL}
+              onClick={() => this.openModal(largeImageURL)}
+            />
+          ))}
+        </ul>
+        {isLoading && <Loader />}
+
+        {images.length > 0 && !isLoading && (
+          <Button onClick={this.handleLoadMore} />
+        )}
+        {showModal && (
+          <Modal largeImageURL={selectedImage} onClose={this.closeModal} />
+        )}
+        {showNoImagesMessage && images.length === 0 && !isLoading && (
+          <p>No matching images found.</p>
+        )}
+      </>
     );
   }
 }
