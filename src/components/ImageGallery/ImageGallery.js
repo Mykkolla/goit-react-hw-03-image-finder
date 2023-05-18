@@ -18,13 +18,6 @@ class ImageGallery extends Component {
     showNoImagesMessage: false,
   };
 
-  // componentDidUpdate(prevProps) {
-  //   if (this.props.imgName !== prevProps.imgName) {
-  //     this.setState({ images: [], currentPage: 1 }, () => {
-  //       this.fetchImages(this.props.imgName, 1);
-  //     });
-  //   }
-  // }
   componentDidUpdate(prevProps) {
     if (this.props.imgName !== prevProps.imgName) {
       this.setState(
@@ -94,7 +87,7 @@ class ImageGallery extends Component {
           <Modal largeImageURL={selectedImage} onClose={this.closeModal} />
         )}
         {showNoImagesMessage && images.length === 0 && !isLoading && (
-          <p>No matching images found.</p>
+          <p>Invalid name entered.</p>
         )}
       </>
     );

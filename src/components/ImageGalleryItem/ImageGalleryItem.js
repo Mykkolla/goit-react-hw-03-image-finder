@@ -1,9 +1,9 @@
 import React from 'react';
 import '../../styles.css';
 
-const ImageGalleryItem = ({ webformatURL, key, onClick }) => {
+const ImageGalleryItem = ({ webformatURL, id, onClick }) => {
   return (
-    <li className="ImageGalleryItem" key={key}>
+    <li className="ImageGalleryItem">
       <img
         src={webformatURL}
         alt=""

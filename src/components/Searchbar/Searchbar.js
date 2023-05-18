@@ -8,7 +8,6 @@ export class Searchbar extends Component {
   };
 
   handleChange = event => {
-    // const { name, value } = event.target;
     this.setState({ imgName: event.currentTarget.value.toLowerCase() });
   };
 
@@ -24,7 +23,6 @@ export class Searchbar extends Component {
   };
 
   render() {
-    // const { name, number } = this.state;
     return (
       <header className="Searchbar">
         <form className="SearchForm" onSubmit={this.handleSubmit}>
