@@ -1,25 +1,151 @@
-import React, { Component } from 'react';
-import { Searchbar } from './Searchbar/Searchbar';
-import ImageGallery from './ImageGallery/ImageGallery';
 import '../styles.css';
+import React, { Component } from 'react';
+import Searchbar from './Searchbar/Searchbar';
+import ImageGallery from './ImageGallery/ImageGallery';
+import Button from './Button/Button';
+import Loader from './Loader/Loader';
+import Modal from './Modal/Modal';
+import axios from 'axios';
 
-export class App extends Component {
+const API_KEY = '35143561-a246dd3ff16ac48132d2e40aa';
+
+class App extends Component {
   state = {
-    imgName: '',
+    images: [],
+    currentPage: 1,
+    searchQuery: '',
+    isLoading: false,
+    showModal: false,
+    largeImage: '',
+    error: null,
+    selectedImage: null,
   };
 
-  handleSearchSubmit = query => {
-    this.setState({ imgName: query });
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.searchQuery !== this.state.searchQuery) {
+      this.getImages();
+    }
+  }
+
+  onChangeQuery = query => {
+    this.setState({
+      images: [],
+      currentPage: 1,
+      searchQuery: query,
+      error: null,
+    });
+  };
+
+  getImages = async () => {
+    const { currentPage, searchQuery } = this.state;
+
+    this.setState({
+      isLoading: true,
+    });
+
+    try {
+      const response = await axios.get(
+        `https://pixabay.com/api/?q=${searchQuery}&page=${currentPage}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
+      );
+
+      const { hits } = response.data;
+
+      this.setState(prevState => ({
+        images: [...prevState.images, ...hits],
+        currentPage: prevState.currentPage + 1,
+      }));
+
+      if (currentPage !== 1) {
+        this.scrollOnLoadButton();
+      }
+    } catch (error) {
+      console.log('Something went wrong with fetching images:', error);
+      this.setState({ error });
+    } finally {
+      this.setState({
+        isLoading: false,
+      });
+    }
+  };
+
+  handleGalleryItem = fullImageUrl => {
+    this.setState({
+      largeImage: fullImageUrl,
+      showModal: true,
+    });
+  };
+
+  // toggleModal = () => {
+  //   this.setState(prevState => ({
+  //     showModal: !prevState.showModal,
+  //     largeImage: '',
+  //   }));
+  // };
+  openModal = selectedImage => {
+    this.setState({ showModal: true, selectedImage });
+  };
+
+  closeModal = () => {
+    this.setState({ showModal: false, largeImage: '' });
+  };
+
+  scrollOnLoadButton = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
   };
 
   render() {
-    const { imgName } = this.state;
+    const { images, isLoading, showModal, largeImage, error } = this.state;
+    const needToShowLoadMore = images.length > 0 && images.length >= 12;
 
     return (
       <div className="App">
-        <Searchbar onSubmit={this.handleSearchSubmit} />
-        <ImageGallery imgName={imgName} />
+        <Searchbar onSearch={this.onChangeQuery} />
+
+        {images.length < 1 && (
+          <div>
+            <h2>The gallery is empty</h2>
+          </div>
+        )}
+
+        <ImageGallery images={images} onImageClick={this.handleGalleryItem} />
+
+        {needToShowLoadMore && <Button onClick={this.getImages} />}
+        {showModal && (
+          <Modal largeImageURL={largeImage} onClose={this.closeModal} />
+        )}
+
+        {isLoading && <Loader />}
+
+        {error && (
+          <div>
+            <h2>Oops!</h2>
+            <p>
+              Sorry, something went wrong. Please try again, or{' '}
+              <a href="/">refresh the page</a>.
+            </p>
+          </div>
+        )}
       </div>
     );
   }
 }
+
+export default App;
+// {showModal && (
+//   <Modal onClose={this.toggleModal}>
+//     <div className="Close-box">
+//       <button
+//         type="button"
+//         onClick={this.toggleModal}
+//         aria-label="Close modal"
+//       >
+//         {/* <CloseIcon width="20px" height="20px" fill="#7e7b7b" /> */}
+//       </button>
+//     </div>
+
+//     <img src={largeImage} alt="" className="Modal-image" />
+//   </Modal>
+// )}

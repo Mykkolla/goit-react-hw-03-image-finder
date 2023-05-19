@@ -1,14 +1,16 @@
 import React from 'react';
 import '../../styles.css';
 
-const ImageGalleryItem = ({ webformatURL, id, onClick }) => {
+const ImageGalleryItem = ({ image, onImageClick }) => {
+  const fullImage = () => onImageClick(image.largeImageURL);
+
   return (
     <li className="ImageGalleryItem">
       <img
-        src={webformatURL}
-        alt=""
         className="ImageGalleryItem-image"
-        onClick={onClick}
+        src={image.webformatURL}
+        alt={image.tags}
+        onClick={fullImage}
       />
     </li>
   );
