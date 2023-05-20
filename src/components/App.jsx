@@ -75,12 +75,6 @@ class App extends Component {
     });
   };
 
-  // toggleModal = () => {
-  //   this.setState(prevState => ({
-  //     showModal: !prevState.showModal,
-  //     largeImage: '',
-  //   }));
-  // };
   openModal = selectedImage => {
     this.setState({ showModal: true, selectedImage });
   };
@@ -134,18 +128,3 @@ class App extends Component {
 }
 
 export default App;
-// {showModal && (
-//   <Modal onClose={this.toggleModal}>
-//     <div className="Close-box">
-//       <button
-//         type="button"
-//         onClick={this.toggleModal}
-//         aria-label="Close modal"
-//       >
-//         {/* <CloseIcon width="20px" height="20px" fill="#7e7b7b" /> */}
-//       </button>
-//     </div>
-
-//     <img src={largeImage} alt="" className="Modal-image" />
-//   </Modal>
-// )}
