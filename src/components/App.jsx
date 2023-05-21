@@ -5,9 +5,7 @@ import ImageGallery from './ImageGallery/ImageGallery';
 import Button from './Button/Button';
 import Loader from './Loader/Loader';
 import Modal from './Modal/Modal';
-import axios from 'axios';
-
-const API_KEY = '35143561-a246dd3ff16ac48132d2e40aa';
+import fetchImages from './api-services/api-services';
 
 class App extends Component {
   state = {
@@ -21,12 +19,6 @@ class App extends Component {
     selectedImage: null,
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.searchQuery !== this.state.searchQuery) {
-      this.getImages();
-    }
-  }
-
   onChangeQuery = query => {
     this.setState({
       images: [],
@@ -36,6 +28,11 @@ class App extends Component {
     });
   };
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.searchQuery !== this.state.searchQuery) {
+      this.getImages();
+    }
+  }
   getImages = async () => {
     const { currentPage, searchQuery } = this.state;
 
@@ -44,17 +41,17 @@ class App extends Component {
     });
 
     try {
-      const response = await axios.get(
-        `https://pixabay.com/api/?q=${searchQuery}&page=${currentPage}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
-      );
+      // const response = await axios.get(
+      //   `https://pixabay.com/api/?q=${searchQuery}&page=${currentPage}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
+      // );
 
-      const { hits } = response.data;
+      // const { hits } = response.data;
+      const { hits } = await fetchImages(searchQuery, currentPage, 12);
 
       this.setState(prevState => ({
         images: [...prevState.images, ...hits],
         currentPage: prevState.currentPage + 1,
       }));
-
       if (currentPage !== 1) {
         this.scrollOnLoadButton();
       }
@@ -73,6 +70,15 @@ class App extends Component {
       largeImage: fullImageUrl,
       showModal: true,
     });
+  };
+
+  incrementPage = () => {
+    this.setState(
+      prevState => ({
+        currentPage: prevState.currentPage + 1,
+      }),
+      this.getImages
+    );
   };
 
   openModal = selectedImage => {
@@ -106,7 +112,7 @@ class App extends Component {
 
         <ImageGallery images={images} onImageClick={this.handleGalleryItem} />
 
-        {needToShowLoadMore && <Button onClick={this.getImages} />}
+        {needToShowLoadMore && <Button onClick={this.incrementPage} />}
         {showModal && (
           <Modal largeImageURL={largeImage} onClose={this.closeModal} />
         )}
