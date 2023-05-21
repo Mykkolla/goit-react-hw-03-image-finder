@@ -48,9 +48,14 @@ class App extends Component {
       // const { hits } = response.data;
       const { hits } = await fetchImages(searchQuery, currentPage, 12);
 
+      if (hits.length === 0) {
+        throw new Error('No images found. Please enter a different query.');
+      }
+
       this.setState(prevState => ({
         images: [...prevState.images, ...hits],
         currentPage: prevState.currentPage + 1,
+        error: null,
       }));
       if (currentPage !== 1) {
         this.scrollOnLoadButton();
@@ -126,6 +131,8 @@ class App extends Component {
               Sorry, something went wrong. Please try again, or{' '}
               <a href="/">refresh the page</a>.
             </p>
+
+            {error.message && <p>{error.message}</p>}
           </div>
         )}
       </div>
